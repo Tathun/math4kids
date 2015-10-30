@@ -22,6 +22,14 @@
 		<div id="highscore">High score: <span>0</span></div>
 		<button id="retry">Try again!</button>
 	</div>
+	<div id="numrepeats">
+		<select style="width: 280px" id="Repeat" name="Repeat">
+		  <option value=5>5</option>
+		  <option value=10>10</option>
+		  <option value=20>20</option>
+		  <option value=50>50</option>
+		</select>	
+	</div>
 	<div id="timer">Timer<div class="progress"></div></div>
 	<div id="problem">2+2=5</div>
 	<button id="correct">&#xf00c;</button>
@@ -39,6 +47,7 @@
 			second,
 			answer,
 			score = 0,
+			nrepeats = 5,
 			highscore = $.localStorage.get('highscore') || 0;
 
 		if ($.localStorage.get('theme') == 'light') {
@@ -59,10 +68,17 @@
 				answer += getRandomInt(-3, 3);
 				answer = Math.max(0, answer);
 			}
-
+			
 			$('#problem').text(first + '+' + second + '=' + answer);
+			nrepeats -= 1;
 		}
 
+		function getNumRepeats() {
+			var rSelector = document.getElementById("numrepeats");
+    		nrepeats = rSelector.options[rSelector.selectedIndex].value;
+    		score = 0;
+		}
+		
 		function gameOver() {
 			if (score > highscore) {
 				highscore = score;
@@ -81,11 +97,19 @@
 		function checkAnswer(guess) {
 			if ($('#gameover').is(':visible')) return false;
 
+			if (nrepeats == 0) {
+				if ((guess && first + second == answer) || (!guess && first + second != answer)) {
+					score += 1;				
+				}
+				
+				gameOver();
+			}
+			
 			if ((guess && first + second == answer) || (!guess && first + second != answer)) {
 				addScore();
 			} else {
-				gameOver();
-			}
+				nextProblem();
+		
 		}
 
 		function startTimer() {
@@ -108,6 +132,11 @@
 			startTimer();
 		}
 
+		function nextProblem() {
+			generateProblem();
+			startTimer();
+		}
+		
 		$('#correct').on('tap', function() {
 			checkAnswer(true);
 		});
@@ -149,7 +178,7 @@
 			}
 		});
 	</script>
-	<script>
+	<!--script>
 	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -158,6 +187,6 @@
 	  ga('create', 'UA-53677226-1', 'auto');
 	  ga('send', 'pageview');
 
-	</script>
+	</script-->
 </body>
 </html>
